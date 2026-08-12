@@ -1,256 +1,110 @@
 ﻿<!DOCTYPE html>
 <html lang="ru">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>С Днём Рождения, Лена! + МЕМЫ!</title>
-    <style>
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>С Днём Рождения, Лена!</title>
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body, html { width: 100%; height: 100%; overflow: hidden; background-color: #050510; font-family: sans-serif; }
+    
+    #floatingCanvas { position: absolute; top: 0; left: 0; width: 100%; height: 100%; z-index: 1; }
 
-        body, html {
-            width: 100%;
-            height: 100%;
-            overflow: hidden;
-            background-color: #050510;
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-        }
-
-        /* Фоновый канвас */
-        #heartsCanvas {
-            position: absolute;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            z-index: 1;
-        }
-
-        /* Мемы */
-        .meme {
-            position: absolute;
-            z-index: 1; /* Чтобы мемы были *под* текстом, но *над* сердечками */
-            pointer-events: none; /* Чтобы мемы не мешали нажимать на текст */
-            opacity: 0.8; /* Немного прозрачности для "неонового" эффекта */
-        }
-
-        /* Карточка с поздравлением */
-        .card {
-            position: absolute;
-            top: 50%;
-            left: 50%;
-            transform: translate(-50%, -50%);
-            z-index: 2; /* Текст поверх всего */
-            background: rgba(15, 15, 30, 0.75);
-            backdrop-filter: blur(8px);
-            padding: 40px 30px;
-            border-radius: 20px;
-            border: 1px solid rgba(255, 0, 128, 0.3);
-            box-shadow: 0 0 30px rgba(255, 0, 128, 0.3), inset 0 0 15px rgba(255, 0, 128, 0.2);
-            text-align: center;
-            color: #fff;
-            max-width: 90%;
-            width: 450px;
-        }
-
-            .card h1 {
-                font-size: 2.2rem;
-                margin-bottom: 5px;
-                color: #ff2a8d;
-                text-shadow: 0 0 10px #ff2a8d, 0 0 20px #ff2a8d;
-            }
-
-            .card .name {
-                font-size: 2.8rem;
-                font-weight: bold;
-                margin-bottom: 15px;
-                color: #00ffff;
-                text-shadow: 0 0 10px #00ffff, 0 0 20px #00ffff, 0 0 30px #00ffff;
-            }
-
-            .card p {
-                font-size: 1.1rem;
-                line-height: 1.5;
-                color: #e0e0ff;
-                text-shadow: 0 0 5px rgba(255, 255, 255, 0.5);
-            }
-    </style>
+    .card {
+      position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); z-index: 2;
+      background: rgba(15, 15, 30, 0.85); backdrop-filter: blur(10px);
+      padding: 40px; border-radius: 25px; border: 2px solid #ff2a8d;
+      box-shadow: 0 0 40px rgba(255, 0, 128, 0.5); text-align: center; color: #fff;
+      max-width: 90%; width: 450px;
+    }
+    .card h1 { font-size: 2.5rem; margin-bottom: 20px; color: #ff2a8d; text-shadow: 0 0 15px #ff2a8d; }
+    .card p { font-size: 1.2rem; line-height: 1.6; color: #e0e0ff; }
+  </style>
 </head>
 <body>
 
-    <canvas id="heartsCanvas"></canvas>
+  <canvas id="floatingCanvas"></canvas>
 
-    <!-- Блок для мемов, JavaScript будет добавлять их сюда -->
-    <div id="memesContainer"></div>
+  <div class="card">
+    <h1>С Днём Рождения! ✨</h1>
+    <p>Пусть каждый день будет таким же ярким, как этот неоновый сайт, и таким же запоминающимся, как эти моменты на фото! 🎁</p>
+  </div>
 
-    <div class="card">
-        <h1>С Днём Рождения,</h1>
-        <div class="name">Лена! 🎁</div>
-        <p>Пусть этот день будет таким же ярким, как этот неоновый сайт, и таким же веселым, как эти мемы! Желаю тебе всего самого-самого, и чтобы Grumpy Cat хотя бы сегодня улыбнулся! 😂</p>
-    </div>
+  <script>
+    const canvas = document.getElementById('floatingCanvas');
+    const ctx = canvas.getContext('2d');
 
-    <script>
-        // --- НАСТРОЙКИ ---
-        const HEART_COUNT = 30; // Количество сердечек
-        const MEME_COUNT = 5;    // Максимальное количество мемов на экране одновременно
+    function resize() {
+      canvas.width = window.innerWidth;
+      canvas.height = window.innerHeight;
+    }
+    window.addEventListener('resize', resize);
+    resize();
 
-        // Список мемов с их размерами (нужно, чтобы они помещались на экран)
-        const memeData = [
-        { name: "doge", url: "https://i.imgur.com/8QG3j1c.png", width: 80, height: 80 },
-        { name: "nyan_cat", url: "https://i.imgur.com/rN4Uf4a.png", width: 100, height: 60 },
-        { name: "grumpy_cat", url: "https://i.imgur.com/T0bHh6x.png", width: 70, height: 80 }
-        ];
-        // -----------------
+    const images = [];
+    // Укажите здесь точные имена файлов, которые вы загрузили на GitHub
+    const imageSources = [
+      'photo1.png', // ИСПРАВЬТЕ ЗДЕСЬ, если имя файла другое
+      'photo2.png'  // ИСПРАВЬТЕ ЗДЕСЬ, если имя файла другое
+    ];
 
-        const canvas = document.getElementById('heartsCanvas');
-        const ctx = canvas.getContext('2d');
-        const memesContainer = document.getElementById('memesContainer');
-
-        function resize() {
-        canvas.width = window.innerWidth;
-        canvas.height = window.innerHeight;
+    let imagesLoaded = 0;
+    imageSources.forEach(src => {
+      const img = new Image();
+      // Теперь мы используем прямую ссылку на файл в репозитории
+      img.src = src; 
+      img.onload = () => {
+        imagesLoaded++;
+        if (imagesLoaded === imageSources.length) {
+          startAnimation();
         }
-        window.addEventListener('resize', resize);
-        resize();
+      };
+      images.push(img);
+    });
 
-        // Класс для сердечек
-        class Heart {
-        constructor() {
-        this.reset();
-        }
-
-        reset() {
+    class FloatingItem {
+      constructor() { this.reset(); }
+      reset() {
+        this.img = images[Math.floor(Math.random() * images.length)];
         this.x = Math.random() * canvas.width;
         this.y = Math.random() * canvas.height;
-        this.size = Math.random() * 15 + 10;
+        this.size = Math.random() * 80 + 60; // Размер фото на экране
         this.speedX = (Math.random() - 0.5) * 1.5;
         this.speedY = (Math.random() - 0.5) * 1.5;
         this.rotation = Math.random() * Math.PI * 2;
-        this.rotSpeed = (Math.random() - 0.5) * 0.03;
-
-        const colors = ['#ff007f', '#ff00ff', '#00ffff', '#ff3366', '#9d00ff'];
-        this.color = colors[Math.floor(Math.random() * colors.length)];
-        this.opacity = Math.random() * 0.7 + 0.3;
-        }
-
-        draw() {
+        this.rotSpeed = (Math.random() - 0.5) * 0.02;
+        this.opacity = Math.random() * 0.5 + 0.5;
+      }
+      draw() {
         ctx.save();
         ctx.translate(this.x, this.y);
         ctx.rotate(this.rotation);
-
-        ctx.shadowBlur = 15;
-        ctx.shadowColor = this.color;
-        ctx.fillStyle = this.color;
         ctx.globalAlpha = this.opacity;
-
-        ctx.beginPath();
-        const topCurveHeight = this.size * 0.3;
-        ctx.moveTo(0, topCurveHeight);
-        ctx.bezierCurveTo(0, 0, -this.size / 2, 0, -this.size / 2, topCurveHeight);
-        ctx.bezierCurveTo(-this.size / 2, (this.size + topCurveHeight) / 2, 0, this.size, 0, this.size);
-        ctx.bezierCurveTo(0, this.size, this.size / 2, (this.size + topCurveHeight) / 2, this.size / 2, topCurveHeight);
-        ctx.bezierCurveTo(this.size / 2, 0, 0, 0, 0, topCurveHeight);
-        ctx.closePath();
-        ctx.fill();
-
+        // Отрисовка картинки
+        ctx.drawImage(this.img, -this.size / 2, -this.size / 2, this.size, this.size);
         ctx.restore();
+      }
+      update() {
+        this.x += this.speedX; this.y += this.speedY; this.rotation += this.rotSpeed;
+        if (this.x < -this.size || this.x > canvas.width + this.size || 
+            this.y < -this.size || this.y > canvas.height + this.size) {
+          this.reset();
         }
+      }
+    }
 
-        update() {
-        this.x += this.speedX;
-        this.y += this.speedY;
-        this.rotation += this.rotSpeed;
+    let items;
+    function startAnimation() {
+      // Количество летающих фото
+      items = Array.from({ length: 15 }, () => new FloatingItem());
+      animate();
+    }
 
-        if (this.x < -20 || this.x > canvas.width + 20 ||
-        this.y < -20 || this.y > canvas.height + 20) {
-        this.reset();
-        }
-        }
-        }
-
-        // Класс для мемов
-        class Meme {
-        constructor(data) {
-        this.data = data;
-        this.element = document.createElement('img');
-        this.element.src = data.url;
-        this.element.alt = data.name;
-        this.element.classList.add('meme');
-        this.element.style.width = data.width + 'px';
-        this.element.style.height = data.height + 'px';
-        memesContainer.appendChild(this.element);
-
-        this.reset();
-        }
-
-        reset() {
-        // Случайное появление за пределами экрана
-        if (Math.random() > 0.5) { // Появляется слева или справа
-        this.x = (Math.random() > 0.5) ? -this.data.width : canvas.width;
-        this.y = Math.random() * (canvas.height - this.data.height);
-        this.speedX = (this.x < 0) ? Math.random() * 2 + 1 : -(Math.random() * 2 + 1);
-        this.speedY = (Math.random() - 0.5) * 1.5;
-        } else { // Появляется сверху или снизу
-        this.x = Math.random() * (canvas.width - this.data.width);
-        this.y = (Math.random() > 0.5) ? -this.data.height : canvas.height;
-        this.speedX = (Math.random() - 0.5) * 1.5;
-        this.speedY = (this.y < 0) ? Math.random() * 2 + 1 : -(Math.random() * 2 + 1);
-        }
-
-        this.element.style.left = this.x + 'px';
-        this.element.style.top = this.y + 'px';
-        }
-
-        update() {
-        this.x += this.speedX;
-        this.y += this.speedY;
-
-        // Если мем вышел за границы, переинициализировать его
-        if (this.x < -this.data.width - 50 || this.x > canvas.width + 50 ||
-        this.y < -this.data.height - 50 || this.y > canvas.height + 50) {
-        this.reset();
-        }
-
-        // Обновить позицию элемента в DOM
-        this.element.style.left = this.x + 'px';
-        this.element.style.top = this.y + 'px';
-        }
-        }
-
-        const hearts = Array.from({ length: HEART_COUNT }, () => new Heart());
-        const memes = [];
-
-        // Функция для создания мемов
-        function createMemes() {
-        for (let i = 0; i < MEME_COUNT; i++) {
-        // Случайным образом выбираем мем из списка данных
-        const randomMemeData = memeData[Math.floor(Math.random() * memeData.length)];
-        memes.push(new Meme(randomMemeData));
-        }
-        }
-
-        function animate() {
-        ctx.clearRect(0, 0, canvas.width, canvas.height);
-        hearts.forEach(heart => {
-        heart.update();
-        heart.draw();
-        });
-
-        // Обновляем мемы (их рисование обрабатывается CSS через позиционирование)
-        memes.forEach(meme => {
-        meme.update();
-        });
-
-        requestAnimationFrame(animate);
-        }
-
-        // Инициализация
-        createMemes(); // Сначала создаем мемы
-        animate();      // Затем запускаем анимацию
-
-    </script>
+    function animate() {
+      ctx.clearRect(0, 0, canvas.width, canvas.height);
+      items.forEach(item => { item.update(); item.draw(); });
+      requestAnimationFrame(animate);
+    }
+  </script>
 </body>
 </html>
