@@ -6,16 +6,52 @@
   <title>С Днём Рождения, Света!</title>
   <style>
     * { margin: 0; padding: 0; box-sizing: border-box; }
-    body, html { width: 100%; height: 100%; overflow: hidden; background-color: #050510; font-family: sans-serif; }
+    body, html { 
+      width: 100%; 
+      height: 100%; 
+      overflow: hidden; 
+      font-family: sans-serif; 
+      /* photo3 на заднем фоне */
+      background: url('photo3.png') no-repeat center center fixed;
+      background-size: cover;
+    }
     
-    #floatingCanvas { position: absolute; top: 0; left: 0; width: 100%; height: 100%; z-index: 1; }
+    /* Затемнение фонового фото для лучшей читаемости */
+    .bg-overlay {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: rgba(5, 5, 16, 0.6);
+      z-index: 1;
+    }
+
+    #floatingCanvas { 
+      position: absolute; 
+      top: 0; 
+      left: 0; 
+      width: 100%; 
+      height: 100%; 
+      z-index: 2; 
+    }
 
     .card {
-      position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); z-index: 2;
-      background: rgba(15, 15, 30, 0.85); backdrop-filter: blur(10px);
-      padding: 40px; border-radius: 25px; border: 2px solid #ff2a8d;
-      box-shadow: 0 0 40px rgba(255, 0, 128, 0.5); text-align: center; color: #fff;
-      max-width: 90%; width: 450px;
+      position: absolute; 
+      top: 50%; 
+      left: 50%; 
+      transform: translate(-50%, -50%); 
+      z-index: 3;
+      background: rgba(15, 15, 30, 0.85); 
+      backdrop-filter: blur(10px);
+      padding: 40px; 
+      border-radius: 25px; 
+      border: 2px solid #ff2a8d;
+      box-shadow: 0 0 40px rgba(255, 0, 128, 0.5); 
+      text-align: center; 
+      color: #fff;
+      max-width: 90%; 
+      width: 450px;
     }
     .card h1 { font-size: 2.3rem; margin-bottom: 20px; color: #ff2a8d; text-shadow: 0 0 15px #ff2a8d; }
     .card p { font-size: 1.15rem; line-height: 1.6; color: #e0e0ff; }
@@ -23,12 +59,12 @@
 </head>
 <body>
 
+  <div class="bg-overlay"></div>
   <canvas id="floatingCanvas"></canvas>
 
   <div class="card">
     <h1>С Днём Рождения, Света! ✨</h1>
-    <p>Пусть твоя жизнь будет такой же яркой, красивой и вдохновляющей! Желаю бесконечного счастья, море улыбок и исполнения всех самых заветных желаний!Бурмалда
-      💖🎉</p>
+    <p>Пусть твоя жизнь будет такой же яркой, красивой и вдохновляющей! Желаю бесконечного счастья, море улыбок и исполнения всех самых заветных желаний! Бурмалда 💖🎉</p>
   </div>
 
   <script>
@@ -42,7 +78,7 @@
     window.addEventListener('resize', resize);
     resize();
 
-    // Загрузка фото
+    // Загрузка фото для полёта (только photo1 и photo2)
     const images = [];
     const imageSources = ['photo1.png', 'photo2.png'];
     let imagesLoaded = 0;
@@ -59,7 +95,7 @@
       images.push(img);
     });
 
-    // Класс для летающих фото
+    // Летающие фото
     class FloatingPhoto {
       constructor() { this.reset(); }
       reset() {
@@ -90,13 +126,12 @@
       }
     }
 
-    // Класс для бóльших и более ярких сердечек
+    // Летающие неоновые сердечки
     class Heart {
       constructor() { this.reset(); }
       reset() {
         this.x = Math.random() * canvas.width;
         this.y = Math.random() * canvas.height;
-        // Размер увеличен: от 20px до 65px
         this.size = Math.random() * 45 + 20; 
         this.speedX = (Math.random() - 0.5) * 1.8;
         this.speedY = (Math.random() - 0.5) * 1.8;
@@ -112,7 +147,6 @@
         ctx.translate(this.x, this.y);
         ctx.rotate(this.rotation);
         
-        // Легкая пульсация свечения
         const currentSize = this.size + Math.sin(this.pulse) * 4;
         ctx.shadowBlur = 20;
         ctx.shadowColor = this.color;
@@ -146,7 +180,6 @@
 
     let items = [];
     function startAnimation() {
-      // 15 фото + 80 бóльших неоновых сердечек
       const photos = Array.from({ length: 15 }, () => new FloatingPhoto());
       const hearts = Array.from({ length: 80 }, () => new Heart());
       items = [...photos, ...hearts];
