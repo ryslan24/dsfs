@@ -1,4 +1,4 @@
-﻿<!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="ru">
 <head>
   <meta charset="UTF-8">
@@ -42,16 +42,16 @@
     resize();
 
     const images = [];
-    // Укажите здесь точные имена файлов, которые вы загрузили на GitHub
+    // ЭТОТ МАССИВ МЫ ИСПРАВИЛИ
     const imageSources = [
-      'photo1.png', // ИСПРАВЬТЕ ЗДЕСЬ, если имя файла другое
-      'photo2.png'  // ИСПРАВЬТЕ ЗДЕСЬ, если имя файла другое
+      'photo1.png', // Теперь ссылка ведет на файл в репозитории
+      'photo2.png'  // Теперь ссылка ведет на файл в репозитории
     ];
 
     let imagesLoaded = 0;
     imageSources.forEach(src => {
       const img = new Image();
-      // Теперь мы используем прямую ссылку на файл в репозитории
+      // Теперь мы используем локальную ссылку на файл
       img.src = src; 
       img.onload = () => {
         imagesLoaded++;
